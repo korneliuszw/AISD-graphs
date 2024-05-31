@@ -9,8 +9,8 @@
 void solution_1(Graph& graph) {
     int* arr = new int[graph.get_size()];
     for (int i = 0; i < graph.get_size(); i++) {
-        auto& list = graph.get_adjacency_list(i);
-        arr[i] = list.get_size();
+        auto list = graph.get_adjacency_list(i);
+        arr[i] = list->get_size();
     }
     quick_sort(arr, 0, graph.get_size() - 1);
     for (int i = graph.get_size() - 1; i >= 0; i--) {
@@ -40,15 +40,14 @@ Vector<Vector<int>*>* get_components(Graph& graph) {
         vertices->push(i);
         while (stack_top > 0) {
             int q = stack[--stack_top];
-            auto head = graph.get_adjacency_list(q).get_head();
-            while (head != nullptr) {
-                int v = head->get_data();
+            auto head = graph.get_adjacency_list(q);
+            for (int k = 0; k < head->get_size(); k++) {
+                int v = head->get(k);
                 if (!marked[v]) {
                     marked[v] = true;
                     stack[stack_top++] = v;
                     vertices->push(v);
                 }
-                head = head->get_next();
             }
         }
         components->push(vertices);
@@ -80,9 +79,9 @@ bool solution_3_result(Graph& graph, Memory& memory) {
         // dfs kolorujacy wierzcholki ktore nie sa jeszcze pokolorowane na kolor przeiwny
         while (stack_top > 0) {
             int q = vertex_stack[--stack_top];
-            auto head = graph.get_adjacency_list(q).get_head();
-            while (head != nullptr) {
-                int v = head->get_data();
+            auto head = graph.get_adjacency_list(q);
+            for (int k = 0; k < head->get_size(); k++) {
+                int v = head->get(k);
                 // sasiad ma ten sam kolor co wierzcholek q, graf nie jest dwudzielny
                 if (colors[v] == colors[q]) {
                     delete[] vertex_stack;
@@ -93,7 +92,6 @@ bool solution_3_result(Graph& graph, Memory& memory) {
                     colors[v] = colors[q] == 1 ? 2 : 1;
                     vertex_stack[stack_top++] = v;
                 }
-                head = head->get_next();
             }
         }
     }
@@ -107,7 +105,6 @@ void solution_3(Graph& graph, Memory& memory) {
 void solution_4(Graph &graph, Memory &memory) {
     auto queue = new int[graph.get_size()];
     int* values = new int[graph.get_size()];
-    // bedziemy przechowywac tez odleglosc od wierzcholka startowego
     int* marked = new int[graph.get_size()];
     int* distance = new int[graph.get_size()];
     for (int i = 0; i < graph.get_size(); i++) {
@@ -118,6 +115,10 @@ void solution_4(Graph &graph, Memory &memory) {
         int size = vertices->get_size();
         for (int j = 0; j < size; j++) {
             int vertex = vertices->get(j);
+            if (size == 1 || size == 2) {
+                values[vertex] = size == 1 ? 0 : 1;
+                continue;
+            }
             int queue_bottom = 0;
             int queue_top = 1;
             queue[queue_bottom] = vertex;
@@ -125,9 +126,9 @@ void solution_4(Graph &graph, Memory &memory) {
             distance[vertex] = 0;
             while (queue_bottom < queue_top && queue_top <= size) {
                 int q = queue[queue_bottom++];
-                auto head = graph.get_adjacency_list(q).get_head();
-                while (head != nullptr) {
-                    int v = head->get_data();
+                auto head = graph.get_adjacency_list(q);
+                for (int k = 0; k < head->get_size(); k++) {
+                    int v = head->get(k);
                     if (marked[v] != vertex) {
                         marked[v] = vertex;
                         distance[v] = distance[q] + 1;
@@ -136,7 +137,6 @@ void solution_4(Graph &graph, Memory &memory) {
                             break;
                         }
                     }
-                    head = head->get_next();
                 }
             }
             values[vertex] = distance[queue[queue_top - 1]];
@@ -199,8 +199,8 @@ void solution_7(Graph& graph) {
 void solution_8(Graph& graph) {
     long long edge_count = 0;
     for (int i = 0; i < graph.get_size(); i++) {
-        auto& list = graph.get_adjacency_list(i);
-        edge_count += list.get_size();
+        auto list = graph.get_adjacency_list(i);
+        edge_count += list->get_size();
     }
     long long expected = (long long)graph.get_size() * (graph.get_size() - 1);
     std::printf("%lld", (expected - edge_count) / 2);

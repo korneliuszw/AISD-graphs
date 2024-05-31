@@ -1,18 +1,18 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <cstdio>
 #include "containers.h"
 #include "solutions.h"
 
 int main() {
     int k, n, s, e;
-
-    scanf_s("%d", &k);
+    scanf("%d", &k);
     for (int i = 0; i < k; i++) {
-        scanf_s("%d", &n);
+        scanf("%d", &n);
         Graph graph(n);
         for (int j = 0; j < n; j++) {
-            scanf_s("%d", &s);
+            scanf("%d", &s);
             for (int l = 0; l < s; l++) {
-                scanf_s("%d", &e);
+                scanf("%d", &e);
                 graph.add_edge(j, e - 1);
             }
         }
