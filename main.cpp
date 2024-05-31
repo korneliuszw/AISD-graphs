@@ -4,6 +4,7 @@
 
 int main() {
     int k, n, s, e;
+
     scanf_s("%d", &k);
     for (int i = 0; i < k; i++) {
         scanf_s("%d", &n);
@@ -15,10 +16,11 @@ int main() {
                 graph.add_edge(j, e - 1);
             }
         }
+        Memory memory;
         solution_1(graph);
-        solution_2(graph);
-        solution_3(graph);
-        solution_4(graph);
+        solution_2(graph, memory);
+        solution_3(graph, memory);
+        solution_4(graph, memory);
         solution_5(graph);
         solution_6a(graph);
         solution_6b(graph);

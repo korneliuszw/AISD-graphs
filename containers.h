@@ -5,6 +5,8 @@
 #ifndef GRAPHY_I_TAKIE_TAM_CONTAINERS_H
 #define GRAPHY_I_TAKIE_TAM_CONTAINERS_H
 
+#include <cstdlib>
+
 template <typename T>
 class List {
     class Node {
@@ -16,7 +18,8 @@ class List {
         Node* get_next() { return next; }
         void set_next(Node* nextNode) { this->next = nextNode; }
         ~Node() {
-            delete next;
+            if (next != nullptr)
+                delete next;
         }
     };
     int size;
@@ -42,6 +45,42 @@ public:
     ~List() {
         delete head;
     }
+};
+
+template <typename T>
+class Vector {
+    T* data;
+    int size;
+    int capacity;
+public:
+    Vector(): size(0), capacity(8) {
+        data = new T[capacity];
+    }
+    explicit Vector(T* data, int size): size(size), capacity(size) {
+        this->data = data;
+    }
+    void push(T element) {
+        if (size == capacity) {
+            capacity *= 2;
+            T* new_data = new T[capacity];
+            for (int i = 0; i < size; i++) {
+                new_data[i] = data[i];
+            }
+            delete[] data;
+            data = new_data;
+        }
+        data[size++] = element;
+    }
+    T& get(int index) {
+        return data[index];
+    }
+    [[nodiscard]] int get_size() const {
+        return size;
+    }
+    ~Vector() {
+        delete[] data;
+    }
+
 };
 
 class Graph {
