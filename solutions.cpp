@@ -38,8 +38,48 @@ void solution_2(Graph& graph) {
     delete[] marked;
     std::printf("%d\n", counter);
 }
+bool solution_3_result(Graph& graph) {
+    char* colors = new char[graph.get_size()];
+    for (int i = 0; i < graph.get_size(); i++) {
+        colors[i] = 0;
+    }
+    bool* marked = new bool[graph.get_size()];
+    for (auto i = 0; i < graph.get_size(); i++) {
+        marked[i] = false;
+    }
+    for (int i = 0; i < graph.get_size(); i++) {
+        if (marked[i]) continue;
+        dfs_graph(graph, i, marked);
+        int* vertex_stack = new int[graph.get_size()];
+        int stack_top = 0;
+        vertex_stack[stack_top++] = i;
+        colors[i] = 1;
+        while (stack_top > 0) {
+            int q = vertex_stack[--stack_top];
+            auto head = graph.get_adjacency_list(q).get_head();
+            while (head != nullptr) {
+                int v = head->get_data();
+                if (colors[v] == colors[q]) {
+                    delete[] vertex_stack;
+                    delete[] marked;
+                    delete[] colors;
+                    return false;
+                }
+                if (colors[v] == 0) {
+                    colors[v] = colors[q] == 1 ? 2 : 1;
+                    vertex_stack[stack_top++] = v;
+                }
+                head = head->get_next();
+            }
+        }
+        delete[] vertex_stack;
+    }
+    delete[] marked;
+    delete[] colors;
+    return true;
+}
 void solution_3(Graph& graph) {
-    std::printf("F\n");
+    std::printf("%c\n", solution_3_result(graph) ? 'T' : 'F');
 }
 void solution_4(Graph& graph) {
     std::printf("?\n");

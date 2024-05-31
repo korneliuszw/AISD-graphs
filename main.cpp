@@ -4,14 +4,14 @@
 
 int main() {
     int k, n, s, e;
-    std::scanf("%d", &k);
+    scanf_s("%d", &k);
     for (int i = 0; i < k; i++) {
-        std::scanf("%d", &n);
+        scanf_s("%d", &n);
         Graph graph(n);
         for (int j = 0; j < n; j++) {
-            std::scanf("%d", &s);
+            scanf_s("%d", &s);
             for (int l = 0; l < s; l++) {
-                std::scanf("%d", &e);
+                scanf_s("%d", &e);
                 graph.add_edge(j, e - 1);
             }
         }
