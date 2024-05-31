@@ -6,8 +6,10 @@ class Graph;
 template <typename T> class Vector;
 struct Memory {
     Vector<Vector<int>*>* components;
+    int* component_sizes;
     Memory() {
         components = nullptr;
+        component_sizes = nullptr;
     }
     ~Memory();
 

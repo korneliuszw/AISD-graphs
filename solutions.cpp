@@ -40,7 +40,7 @@ Vector<Vector<int>*>* get_components(Graph& graph) {
         vertices->push(i);
         while (stack_top > 0) {
             int q = stack[--stack_top];
-            auto head = graph.get_adjacency_list(q);
+            Vector<int>* head = graph.get_adjacency_list(q);
             for (int k = 0; k < head->get_size(); k++) {
                 int v = head->get(k);
                 if (!marked[v]) {
@@ -102,53 +102,56 @@ bool solution_3_result(Graph& graph, Memory& memory) {
 void solution_3(Graph& graph, Memory& memory) {
     std::printf("%c\n", solution_3_result(graph, memory) ? 'T' : 'F');
 }
+
+void map_vertices_to_component_sizes(Graph& graph, Memory& memory) {
+    int* component_sizes = new int[graph.get_size()];
+    for (int i = 0; i < memory.components->get_size(); i++) {
+        auto component = memory.components->get(i);
+        int size = component->get_size();
+        for (int k = 0; k < component->get_size(); k++) {
+            int vertex = component->get(k);
+            component_sizes[vertex] = size;
+        }
+    }
+    memory.component_sizes = component_sizes;
+}
 void solution_4(Graph &graph, Memory &memory) {
-    auto queue = new int[graph.get_size()];
-    int* values = new int[graph.get_size()];
+    map_vertices_to_component_sizes(graph, memory);
+    int* queue = new int[graph.get_size()];
     int* marked = new int[graph.get_size()];
     int* distance = new int[graph.get_size()];
     for (int i = 0; i < graph.get_size(); i++) {
         marked[i] = -1;
     }
-    for (int i = 0; i < memory.components->get_size(); i++) {
-        auto vertices = memory.components->get(i);
-        int size = vertices->get_size();
-        for (int j = 0; j < size; j++) {
-            int vertex = vertices->get(j);
-            if (size == 1 || size == 2) {
-                values[vertex] = size == 1 ? 0 : 1;
-                continue;
-            }
-            int queue_bottom = 0;
-            int queue_top = 1;
-            queue[queue_bottom] = vertex;
-            marked[vertex] = vertex;
-            distance[vertex] = 0;
-            while (queue_bottom < queue_top && queue_top <= size) {
-                int q = queue[queue_bottom++];
-                auto head = graph.get_adjacency_list(q);
-                for (int k = 0; k < head->get_size(); k++) {
-                    int v = head->get(k);
-                    if (marked[v] != vertex) {
-                        marked[v] = vertex;
-                        distance[v] = distance[q] + 1;
-                        queue[queue_top++] = v;
-                        if (queue_top >= size) {
-                            break;
-                        }
-                    }
+    for (int vertex = 0; vertex < graph.get_size(); vertex++) {
+        int size = memory.component_sizes[vertex];
+        if (size == 1 || size == 2) {
+            printf("%d ", size == 1 ? 0 : 1);
+            continue;
+        }
+        int queue_bottom = 0;
+        int queue_top = 1;
+        queue[queue_bottom] = vertex;
+        marked[vertex] = vertex;
+        distance[vertex] = 0;
+        int last_dist = 0;
+        while (queue_top < size) {
+            int q = queue[queue_bottom++];
+            auto head = graph.get_adjacency_list(q);
+            for (int k = 0; k < head->get_size(); k++) {
+                int v = head->get(k);
+                if (marked[v] != vertex) {
+                    marked[v] = vertex;
+                    last_dist = distance[v] = distance[q] + 1;
+                    queue[queue_top++] = v;
                 }
             }
-            values[vertex] = distance[queue[queue_top - 1]];
         }
-    }
-    for (int i = 0; i < graph.get_size(); i++) {
-        printf("%d ", values[i]);
+        printf("%d ", last_dist);
     }
     printf("\n");
     delete[] queue;
     delete[] marked;
-    delete[] values;
     delete[] distance;
 }
 void solution_5(Graph& graph) {
@@ -163,38 +166,37 @@ void solution_6b(Graph& graph) {
 void solution_6c(Graph& graph) {
     std::printf("?\n");
 }
-//struct StackElement {
-//    int q;
-//    int prev;
-//    int depth;
-//};
+struct StackElement {
+    int q;
+    int prev;
+    int depth;
+};
 void solution_7(Graph& graph) {
-//    int counter = 0;
-//    auto* stack = new StackElement[graph.get_size() * 4];
-//    for (int i = 0; i < graph.get_size(); i++) {
-//        int stack_top = 0;
-//        stack[stack_top++] = {i, -1, 0};
-//        while (stack_top > 0) {
-//            auto elem = stack[--stack_top];
-//            if (elem.depth == 3) {
-//                if (elem.q == i)
-//                    counter++;
-//                continue;
-//            }
-//            auto head = graph.get_adjacency_list(elem.q).get_head();
-//            while (head != nullptr) {
-//                int v = head->get_data();
-//                if (elem.prev != v) {
-//                    stack[stack_top++] = {v, elem.q, elem.depth + 1};
-//                }
-//                head = head->get_next();
-//            }
-//        }
-//    }
-//    delete[] stack;
-//    counter /= 8;
-//    std::printf("%d\n", counter);
-    std::printf("?\n");
+    int counter = 0;
+    auto* stack = new StackElement[graph.get_size() * 4];
+    for (int i = 0; i < graph.get_size(); i++) {
+        int stack_top = 0;
+        stack[stack_top++] = {i, -1, 0};
+        while (stack_top > 0) {
+            auto elem = stack[--stack_top];
+            if (elem.depth == 3) {
+                if (elem.q == i)
+                    counter++;
+                continue;
+            }
+            auto head = graph.get_adjacency_list(elem.q);
+            for (int k = 0; k < head->get_size(); k++) {
+                int v = head->get(k);
+                if (elem.prev != v) {
+                    stack[stack_top++] = {v, elem.q, elem.depth + 1};
+                }
+            }
+        }
+    }
+    delete[] stack;
+    counter /= 8;
+    std::printf("%d\n", counter);
+//    std::printf("?\n");
 }
 void solution_8(Graph& graph) {
     long long edge_count = 0;
@@ -208,4 +210,5 @@ void solution_8(Graph& graph) {
 
 Memory::~Memory() {
     delete components;
+    delete component_sizes;
 }
