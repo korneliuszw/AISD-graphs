@@ -6,6 +6,7 @@
 #define GRAPHY_I_TAKIE_TAM_CONTAINERS_H
 
 #include <cstdlib>
+#include <type_traits>
 
 template <typename T>
 class Vector {
@@ -15,9 +16,6 @@ class Vector {
 public:
     Vector(): size(0), capacity(8) {
         data = new T[capacity];
-    }
-    explicit Vector(T* data, int size): size(size), capacity(size) {
-        this->data = data;
     }
     void push(T element) {
         if (size == capacity) {
@@ -38,6 +36,11 @@ public:
         return size;
     }
     ~Vector() {
+        if constexpr (std::is_pointer<T>::value) {
+            for (int i = 0; i < size; i++) {
+                delete data[i];
+            }
+        }
         delete[] data;
     }
 

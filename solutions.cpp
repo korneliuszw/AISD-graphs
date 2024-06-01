@@ -6,11 +6,13 @@
 #include "algos.h"
 #include <cstdio>
 void solution_1(Graph &graph, Memory &memory) {
+    // przechowujemy wierzcholki wraz z ich stopniami by wykorzystac je tez w innym rozwiazaniu
     auto* arr = new DegreeCount[graph.get_size()];
     for (int i = 0; i < graph.get_size(); i++) {
         auto list = graph.get_adjacency_list(i);
         arr[i] = {i, list->get_size()};
     }
+    // sortujemy wierzcholki po stopniach
     merge_sort(arr, 0, graph.get_size() - 1);
     for (int i = graph.get_size() - 1; i >= 0; i--) {
         std::printf("%d ", arr[i].degree);
@@ -23,14 +25,12 @@ void solution_1(Graph &graph, Memory &memory) {
 }
 
 Vector<Vector<int>*>* get_components(Graph& graph) {
+    // przechowujemy wszystkie wierzcholki w skladowych by potem efektywniej kolorowac wierzcholki w 6c
     auto components = new Vector<Vector<int>*>();
-    bool* marked = new bool[graph.get_size()];
+    bool* marked = new bool[graph.get_size()]();
     int* stack = new int[graph.get_size()];
-    for (auto i = 0; i < graph.get_size(); i++) {
-        marked[i] = false;
-    }
-    // wierzcholek ktory nie zostal wczesniej odwiedzony tworzy nowa skladowa
     for (int i = 0; i < graph.get_size(); i++) {
+        // wierzcholek ktory nie zostal wczesniej odwiedzony tworzy nowa skladowa
         if (marked[i]) continue;
         marked[i] = true;
         int stack_top = 0;
@@ -63,10 +63,7 @@ void solution_2(Graph& graph, Memory& memory) {
     memory.components = components;
 }
 bool solution_3_result(Graph& graph, Memory& memory) {
-    char* colors = new char[graph.get_size()];
-    for (int i = 0; i < graph.get_size(); i++) {
-        colors[i] = 0;
-    }
+    char* colors = new char[graph.get_size()]();
     auto components = memory.components;
     int* vertex_stack = new int[graph.get_size()];
     // przechodzimy przez wsyzstkie skladowe bo dwudzielnosc dotyczy grafow spojnych
@@ -134,6 +131,7 @@ void solution_4(Graph &graph, Memory &memory) {
         marked[vertex] = vertex;
         distance[vertex] = 0;
         int last_dist = 0;
+        // bfs, ale mozemy bezpiecznie przerwac po przejsciu przez wszystkie wierzcholki w skladowej
         while (queue_top < size) {
             int q = queue[queue_bottom++];
             auto head = graph.get_adjacency_list(q);
@@ -161,9 +159,11 @@ void color(int* sorted_adjacency, int* colors, int vertex, Graph& graph) {
     auto list = graph.get_adjacency_list(vertex);
     int size = list->get_size();
     int min = 1;
+    // pobieramy kolory sasiadow
     for (int j = 0; j < size; j++) {
         sorted_adjacency[j] = colors[list->get(j)];
     }
+    // sortujemy sasiadow po kolorach by moc przypisac wierzcholkowi najmniejszy mozliwy kolor
     merge_sort(sorted_adjacency, 0, size - 1);
     for (int j = 0; j < size; j++) {
         if (sorted_adjacency[j] == min)
@@ -189,7 +189,9 @@ void solution_6a(Graph& graph) {
 void solution_6b(Graph &graph, Memory &memory) {
     int* colors = new int[graph.get_size()]();
     int* sorted_adjacency = new int[graph.get_size()]();
+    // w tym rozwiazaniu zaczynamy malowanie od wierzcholkow o najwiekszym stopniu
     for (int i = graph.get_size() - 1; i >= 0; i--) {
+        // obliczone w pkt 1
         int v = memory.degrees[i].vertex;
         color(sorted_adjacency, colors, v, graph);
     }
@@ -204,6 +206,7 @@ void solution_6c(Graph &graph, Memory &memory) {
     int* colors = new int[graph.get_size()]();
     int* sorted_adjacency = new int[graph.get_size()];
     int* saturation = new int[graph.get_size()]();
+    // komponenty nie caly graf by skrocic wielkosc zagniezdzonej petli
     for (int i = 0 ; i < memory.components->get_size(); i++) {
         auto component = memory.components->get(i);
         int colored = 0;
@@ -218,6 +221,7 @@ void solution_6c(Graph &graph, Memory &memory) {
                 }
                 int degree = graph.get_adjacency_list(w)->get_size();
                 int sat = saturation[w];
+                // wybieramy wierzcholek o najwiekszym nasyceniu, a jesli takich jest kilka to o najwiekszym stopniu, a jesli takich jest kilka to o najmniejszym numerze
                 if (sat > max_saturation || (sat == max_saturation && (degree > max_degree || (degree == max_degree && w < vertex)))) {
                     max_saturation = sat;
                     vertex = w;
@@ -226,6 +230,7 @@ void solution_6c(Graph &graph, Memory &memory) {
             }
             color(sorted_adjacency, colors, vertex, graph);
             auto this_list = graph.get_adjacency_list(vertex);
+            // przelicz nasycenie sasiadow
             for (int k = 0; k < this_list->get_size(); k++) {
                 int v = this_list->get(k);
                 if (colors[v] > 0)
@@ -234,6 +239,7 @@ void solution_6c(Graph &graph, Memory &memory) {
                 bool unique = true;
                 for (int j = 0; j < other_list->get_size(); j++) {
                     int w = other_list->get(j);
+                    // obecny wierzcholek ma taki sam kolor jak sasiad sasiada, wiec nie musimy zwiekszac nasycenia sasiadowi
                     if (w != vertex && colors[w] == colors[vertex]) {
                         unique = false;
                         break;
