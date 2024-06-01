@@ -201,8 +201,59 @@ void solution_6b(Graph &graph, Memory &memory) {
     std::printf("\n");
 }
 void solution_6c(Graph &graph, Memory &memory) {
+    int* colors = new int[graph.get_size()]();
+    int* sorted_adjacency = new int[graph.get_size()];
+    int* saturation = new int[graph.get_size()]();
+    for (int i = 0 ; i < memory.components->get_size(); i++) {
+        auto component = memory.components->get(i);
+        int colored = 0;
+        while (colored < component->get_size()) {
+            int vertex = 0;
+            int max_saturation = -1;
+            int max_degree = -1;
+            for (int k = 0; k < component->get_size(); k++) {
+                int w = component->get(k);
+                if (colors[w] > 0) {
+                    continue;
+                }
+                int degree = graph.get_adjacency_list(w)->get_size();
+                int sat = saturation[w];
+                if (sat > max_saturation || (sat == max_saturation && (degree > max_degree || (degree == max_degree && w < vertex)))) {
+                    max_saturation = sat;
+                    vertex = w;
+                    max_degree = degree;
+                }
+            }
+            color(sorted_adjacency, colors, vertex, graph);
+            auto this_list = graph.get_adjacency_list(vertex);
+            for (int k = 0; k < this_list->get_size(); k++) {
+                int v = this_list->get(k);
+                if (colors[v] > 0)
+                    continue;
+                auto other_list = graph.get_adjacency_list(v);
+                bool unique = true;
+                for (int j = 0; j < other_list->get_size(); j++) {
+                    int w = other_list->get(j);
+                    if (w != vertex && colors[w] == colors[vertex]) {
+                        unique = false;
+                        break;
+                    }
+                }
+                if (unique)
+                    saturation[v]++;
+            }
+            colored++;
+        }
+    }
+    for (int i = 0; i < graph.get_size(); i++) {
+        std::printf("%d ", colors[i]);
+    }
+    delete[] colors;
+    delete[] sorted_adjacency;
+    delete[] saturation;
+    std::printf("\n");
 }
-void solution_7(Graph& graph) {
+void solution_7(Graph &graph, Memory &memory) {
     std::printf("?\n");
 }
 void solution_8(Graph& graph) {

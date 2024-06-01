@@ -34,5 +34,5 @@ void solution_5(Graph& graph);
 void solution_6a(Graph& graph);
 void solution_6b(Graph &graph, Memory &memory);
 void solution_6c(Graph &graph, Memory &memory);
-void solution_7(Graph& graph);
+void solution_7(Graph &graph, Memory &memory);
 void solution_8(Graph& graph);

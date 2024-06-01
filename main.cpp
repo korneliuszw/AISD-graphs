@@ -25,7 +25,7 @@ int main() {
         solution_6a(graph);
         solution_6b(graph, memory);
         solution_6c(graph, memory);
-        solution_7(graph);
+        solution_7(graph, memory);
         solution_8(graph);
         std::printf("\n");
     }
