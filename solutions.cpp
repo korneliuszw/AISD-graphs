@@ -5,21 +5,20 @@
 #include "containers.h"
 #include "algos.h"
 #include <cstdio>
-#include <algorithm>
-void solution_1(Graph& graph) {
-    int* arr = new int[graph.get_size()];
+void solution_1(Graph &graph, Memory &memory) {
+    auto* arr = new DegreeCount[graph.get_size()];
     for (int i = 0; i < graph.get_size(); i++) {
         auto list = graph.get_adjacency_list(i);
-        arr[i] = list->get_size();
+        arr[i] = {i, list->get_size()};
     }
-    quick_sort(arr, 0, graph.get_size() - 1);
+    merge_sort(arr, 0, graph.get_size() - 1);
     for (int i = graph.get_size() - 1; i >= 0; i--) {
-        std::printf("%d ", arr[i]);
+        std::printf("%d ", arr[i].degree);
     }
     if (graph.get_size() == 0) {
         std::printf("%d", 0);
     }
-    delete[] arr;
+    memory.degrees = arr;
     std::printf("\n");
 }
 
@@ -157,46 +156,54 @@ void solution_4(Graph &graph, Memory &memory) {
 void solution_5(Graph& graph) {
     std::printf("?\n");
 }
-void solution_6a(Graph& graph) {
-    std::printf("?\n");
-}
-void solution_6b(Graph& graph) {
-    std::printf("?\n");
-}
-void solution_6c(Graph& graph) {
-    std::printf("?\n");
-}
-struct StackElement {
-    int q;
-    int prev;
-    int depth;
-};
-void solution_7(Graph& graph) {
-    int counter = 0;
-    auto* stack = new StackElement[graph.get_size() * 4];
-    for (int i = 0; i < graph.get_size(); i++) {
-        int stack_top = 0;
-        stack[stack_top++] = {i, -1, 0};
-        while (stack_top > 0) {
-            auto elem = stack[--stack_top];
-            if (elem.depth == 3) {
-                if (elem.q == i)
-                    counter++;
-                continue;
-            }
-            auto head = graph.get_adjacency_list(elem.q);
-            for (int k = 0; k < head->get_size(); k++) {
-                int v = head->get(k);
-                if (elem.prev != v) {
-                    stack[stack_top++] = {v, elem.q, elem.depth + 1};
-                }
-            }
-        }
+
+void color(int* sorted_adjacency, int* colors, int vertex, Graph& graph) {
+    auto list = graph.get_adjacency_list(vertex);
+    int size = list->get_size();
+    int min = 1;
+    for (int j = 0; j < size; j++) {
+        sorted_adjacency[j] = colors[list->get(j)];
     }
-    delete[] stack;
-    counter /= 8;
-    std::printf("%d\n", counter);
-//    std::printf("?\n");
+    merge_sort(sorted_adjacency, 0, size - 1);
+    for (int j = 0; j < size; j++) {
+        if (sorted_adjacency[j] == min)
+            min++;
+    }
+    colors[vertex] = min;
+}
+
+void solution_6a(Graph& graph) {
+    int* colors = new int[graph.get_size()];
+    for (int i = 0; i < graph.get_size(); i++) {
+        colors[i] = 0;
+    }
+    int* sorted_adjacency = new int[graph.get_size()]();
+    for (int i = 0; i < graph.get_size(); i++) {
+        color(sorted_adjacency, colors, i, graph);
+        std::printf("%d ", colors[i]);
+    }
+    delete[] colors;
+    delete[] sorted_adjacency;
+    std::printf("\n");
+}
+void solution_6b(Graph &graph, Memory &memory) {
+    int* colors = new int[graph.get_size()]();
+    int* sorted_adjacency = new int[graph.get_size()]();
+    for (int i = graph.get_size() - 1; i >= 0; i--) {
+        int v = memory.degrees[i].vertex;
+        color(sorted_adjacency, colors, v, graph);
+    }
+    for (int i = 0; i < graph.get_size(); i++) {
+        std::printf("%d ", colors[i]);
+    }
+    delete[] colors;
+    delete[] sorted_adjacency;
+    std::printf("\n");
+}
+void solution_6c(Graph &graph, Memory &memory) {
+}
+void solution_7(Graph& graph) {
+    std::printf("?\n");
 }
 void solution_8(Graph& graph) {
     long long edge_count = 0;
@@ -211,4 +218,5 @@ void solution_8(Graph& graph) {
 Memory::~Memory() {
     delete components;
     delete component_sizes;
+    delete degrees;
 }

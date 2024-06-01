@@ -17,14 +17,14 @@ int main() {
             }
         }
         Memory memory;
-        solution_1(graph);
+        solution_1(graph, memory);
         solution_2(graph, memory);
         solution_3(graph, memory);
         solution_4(graph, memory);
         solution_5(graph);
         solution_6a(graph);
-        solution_6b(graph);
-        solution_6c(graph);
+        solution_6b(graph, memory);
+        solution_6c(graph, memory);
         solution_7(graph);
         solution_8(graph);
         std::printf("\n");
