@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "containers.h"
 #include "solutions.h"
+#include <crtdbg.h>
 
 int main() {
     int k, n, s, e;
